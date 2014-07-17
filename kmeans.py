@@ -12,14 +12,14 @@ def test():
     values = grab_values.values
     a = KMeans(max_iters=7, tries=15)
     
-    a.fit(values=values)
-    print '\n\nFitting KMeans for one value of K works!\n\n'
+    a.fit(values=values, clusters=3)
+    print '-->Fitting KMeans for one value of K works!'
 
     a.plotj(maxK=4)  # must do after fit() in order to load the values
-    print '\n\nFitting KMeans for multiple values of K works!\n\n'
+    print '--->Fitting KMeans for multiple values of K works!'
 
     a.find_centroid_for_each()
-    print '\n\nFinding the group for each dot for the lowest-cost centroid position works!\n\n'
+    print '--->Finding the group for each dot for the lowest-cost centroid position works!'
 
 class KMeans(object):
     def __init__(self, max_iters, tries):
@@ -143,6 +143,7 @@ class KMeans(object):
         c = ['centroid position', 'how many for each', 'J']
 
         self.table = pd.DataFrame(table, columns=c).sort_index(by=['J']).head()
+        self.table = self.table[['J', 'how many for each', 'centroid position']]
 
     # Part 7: Trying multiple # of centroids, or K, and plotting the cost J for each.
     def plotj(self, maxK):
@@ -150,9 +151,14 @@ class KMeans(object):
         How many different Ks to calculate, in order to find the right number of centroids?"""
 
         list = []
+        
+        print 'Calculating for',
 
         for k in range(2, maxK + 1):
-            print 'Calculating for K={}'.format(k)
+            if k==maxK:
+                 print 'K={}'.format(k)
+            else:
+                print 'K={},'.format(k),
             self.k_means_multiple(k)
 
             table = self.table
@@ -171,7 +177,7 @@ class KMeans(object):
         ax.set_xlabel('Number of centroids')
         ax.set_ylabel('Cost of centroids and their points')
 
-    def fit(self, values):
+    def fit(self, values, clusters):
         self.x = values
 
         try:
@@ -179,7 +185,7 @@ class KMeans(object):
         except:
             self.dim = 1
 
-        self.K = int(raw_input('How many centroids? '))
+        self.K = clusters
         self.randomcentroids()
 
         print 'Running K-means {} times, moving the {} centroids a max of {} on each try...'.format(self.tries, self.K, self.max_iters)
