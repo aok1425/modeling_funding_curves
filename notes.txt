@@ -1,0 +1,27 @@
+plan:
+
+model curve of growth rate
+is that modeling growth rate?
+i'm thinking it's an exp()
+
+how many pts have weird profiles again?
+how many pts are funded right away?
+	can we predict these?
+
+k-means clustering to determine how many groups of pts there are, in terms of how quickly they get funded?
+
+then, model when the first donation will be
+does it have sth to do w whether it was posted at night? like, ppl don't check until like 9a?
+
+what attributes of a proj/pt make it more likely to be funded quickly?
+
+
+
+clustering for hours-to-fund (hours-to-fund by target_amt?)
+
+
+maybe do k means on hours-to-fund/target amt? hard time finding my code to make cost curve...
+
+
+when doing K-means, i cld get 3 or 4 grps. wht is the 4th grp? those points that don't fit well into either of the 3 models? the 'step-wise' model?
+if i cld visualize K-means in 3D, i cld show this...
