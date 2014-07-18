@@ -188,9 +188,9 @@ class KMeans(object):
         self.K = clusters
         self.randomcentroids()
 
-        print 'Running K-means {} times, moving the {} centroids a max of {} on each try...'.format(self.tries, self.K, self.max_iters)
+        print 'Running K-means {} times, moving the {} centroids a max of {} times on each try...'.format(self.tries, self.K, self.max_iters)
         self.k_means_multiple(self.K)
-        print '\n'
+
         print self.table
 
     def find_centroid_for_each(self):
