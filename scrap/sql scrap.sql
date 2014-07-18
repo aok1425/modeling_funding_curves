@@ -119,34 +119,46 @@ first_donation
 posted_date
 last_donation = funded_date
 
-
-select table2.contributable_id as t2id, table4.contributable_id as t4id, table4.posted_date, table2.first_donation, table4.funded_date
-
+/* for each pt, how many other pts were visible at the time of that pt's first donation? */
+select table2.contributable_id as t2id, count(*), max(table2.pct_of_first_donation) as pct_of_first_donation, max(table2.funding_amt) as funding_amt
 from
 (select *
-from (select c.contributable_id, max(p.created_at) as posted_date, min(c.created_at) as first_donation, max(p.funded_at) as funded_date
+from (select c.contributable_id, max(p.created_at) as posted_date, min(c.created_at) as first_donation, max(p.funded_at) as funded_date, min(c.donation_amount)/max(p.target_amount)::float as pct_of_first_donation, max(p.target_amount) as funding_amt
 from contributions as c join profiles as p
 on c.contributable_id = p.id
 group by c.contributable_id) table1
-where posted_date > first_donation /* there are 42 of these */ and funded_date is not null /* 33 of these */
-limit 10) table2
+where posted_date < first_donation /* there are 42 of these */ and funded_date is not null /* 33 of these */) table2
 ,
 (select *
 from (select c.contributable_id, max(p.created_at) as posted_date, min(c.created_at) as first_donation, max(p.funded_at) as funded_date
 from contributions as c join profiles as p
 on c.contributable_id = p.id
 group by c.contributable_id) table3
-where posted_date > first_donation /* there are 42 of these */ and funded_date is not null /* 33 of these */
-limit 10) table4
+where posted_date < first_donation /* there are 42 of these */ and funded_date is not null /* 33 of these */) table4
 
-where table2.first_donation < table4.funded_date and table2.first_donation > table4.posted_date;
+where table2.first_donation < table4.funded_date and table2.first_donation > table4.posted_date
+group by table2.contributable_id
+order by table2.contributable_id;
 
 /* table2 has the pt in question. table4 shows the other pts that were fundable at the time of the first_donation to the pt in table2' */
 
+table4.contributable_id as t4id, table4.posted_date, table2.first_donation, table4.funded_date
+
 select *
-from (select c.contributable_id, max(p.created_at) as posted_date, min(c.created_at) as first_donation, max(p.funded_at) as funded_date
+from (select c.contributable_id, max(p.created_at) as posted_date, min(c.created_at) as first_donation, max(p.funded_at) as funded_date, min(c.donation_amount)/max(p.target_amount)::float as pct_of_first_donation
 from contributions as c join profiles as p
 on c.contributable_id = p.id
 group by c.contributable_id) table1
-where posted_date > first_donation /* there are 42 of these */ and funded_date is not null /* 33 of these */
+where posted_date < first_donation /* there are 42 of these */ and funded_date is not null
+order by pct_of_first_donation desc;
+
+select min(c.donation_amount), c.contributable_id
+from contributions c
+group by c.contributable_id
 limit 10;
+
+select patient, hrs_to_completion, hrs_to_completion - first_donation as "completion_after_first_donation", funding_amt
+from (select p.id as patient, max(c.created_at - p.created_at) as "hrs_to_completion", min(c.created_at - p.created_at) as "first_donation", count(c.created_at) as "num", (p.target_amount * .01)::int as "funding_amt"
+from contributions as c join profiles as p
+on (c.contributable_id = p.id)
+group by patient) table1;
